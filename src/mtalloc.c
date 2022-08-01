@@ -117,8 +117,7 @@ void mtfree(mtm_t *mtm, void *ptr) {
 	mtm->nb_used--;
 	const mtm_t _mtm = *mtm;
 	for (unsigned i = 0; i < _mtm.nb_units; i++) {
-		if (_mtm.used[i]) {
-			_mtm.buf[i]  = ptr;
+		if (_mtm.buf[i] == ptr) {
 			_mtm.used[i] = 0;
 			UNLOCK(mtm->mut);
 			return;
