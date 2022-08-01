@@ -36,7 +36,7 @@ mtm_t mtm_init() {
 void mtm_destroy(mtm_t mtm) {
 	LOCK(mtm.mut);
 	if (mtm.nb_used != 0) {
-		errx(1, "mtm_destroy: destroy a buffer while beign used");
+		errx(1, "mtm_destroy(): destroy a buffer while beign used");
 	}
 	for (unsigned i = 0; i < mtm.nb_units; i++) {
 		free(mtm.buf[i]);
@@ -124,4 +124,5 @@ void mtfree(mtm_t *mtm, void *ptr) {
 			return;
 		}
 	}
+	errx(1, "mtfree(): invalid pointer");
 }
