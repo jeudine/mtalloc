@@ -62,6 +62,7 @@ void *mtmalloc(mtm_t *mtm, size_t size) {
 		_mtm.size[mtm->nb_used] = size;
 		_mtm.used[mtm->nb_used] = 1;
 		for (unsigned i = _mtm.nb_used + 1; i < _mtm.nb_units; i++) {
+			_mtm.buf[i]  = NULL;
 			_mtm.size[i] = 0;
 			_mtm.used[i] = 0;
 		}
