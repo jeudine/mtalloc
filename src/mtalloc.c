@@ -124,7 +124,7 @@ void *mtrealloc(mtm_t *const mtm, void *const ptr, size_t size) {
 	void *out  = NULL;
 	mtm_t _mtm = *mtm;
 	LOCK(_mtm.mut);
-	size_t cur_size;
+	size_t cur_size  = 0;
 	unsigned cur_buf = _mtm.nb_units;
 	for (unsigned i = 0; i < _mtm.nb_units; i++) {
 		if (_mtm.buf[i] == ptr) {
@@ -179,6 +179,9 @@ void *mtcalloc(mtm_t *const mtm, const size_t nmemb, const size_t size) {
 }
 
 void mtfree(mtm_t *const mtm, void *const ptr) {
+	if (ptr == NULL) {
+		return;
+	}
 	LOCK(mtm->mut);
 	mtm->nb_used--;
 	const mtm_t _mtm = *mtm;
