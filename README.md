@@ -10,4 +10,4 @@ Before creating your threads, you need to initialize an `mtm` variable using `mt
 
 ## Test
 
-A comparison between the standard malloc and mtalloc is implemented in `test\`. You can use `make` to compile the program and then execute it with the desired number of threads.
+A comparison between the standard malloc and mtalloc is implemented in `test\`. You can use `make` to compile the program and then run it with the desired number of threads.
