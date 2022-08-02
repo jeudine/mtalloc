@@ -49,7 +49,10 @@ void mtm_destroy(mtm_t mtm) {
 	}
 }
 
-void *mtmalloc(mtm_t *mtm, size_t size) {
+void *mtmalloc(mtm_t *const mtm, const size_t size) {
+	if (size == 0) {
+		return NULL;
+	}
 	void *out;
 	LOCK(mtm->mut);
 	if (mtm->nb_used == mtm->nb_units) {
@@ -75,11 +78,11 @@ void *mtmalloc(mtm_t *mtm, size_t size) {
 		mtm->nb_used++;
 	} else {
 		mtm->nb_used++;
-		const mtm_t _mtm       = *mtm;
-		unsigned smallest_buf  = 0;
-		unsigned size_smallest = UINT_MAX;
+		const mtm_t _mtm      = *mtm;
+		unsigned smallest_buf = 0;
+		size_t size_smallest  = SIZE_MAX;
 		unsigned good_buf;
-		unsigned size_good = UINT_MAX;
+		size_t size_good = SIZE_MAX;
 		for (unsigned i = 0; i < _mtm.nb_units; i++) {
 			if (_mtm.used[i] == 0) {
 				if (_mtm.size[i] >= size) {
@@ -87,7 +90,7 @@ void *mtmalloc(mtm_t *mtm, size_t size) {
 						size_good = _mtm.size[i];
 						good_buf  = i;
 					}
-				} else if (size_good == UINT_MAX) {
+				} else if (size_good == SIZE_MAX) {
 					if (_mtm.size[i] < size_smallest) {
 						size_smallest = _mtm.size[i];
 						smallest_buf  = i;
@@ -95,7 +98,7 @@ void *mtmalloc(mtm_t *mtm, size_t size) {
 				}
 			}
 		}
-		if (size_good != UINT_MAX) {
+		if (size_good != SIZE_MAX) {
 			_mtm.used[good_buf] = 1;
 			out                 = _mtm.buf[good_buf];
 		} else {
@@ -113,7 +116,69 @@ void *mtmalloc(mtm_t *mtm, size_t size) {
 	return out;
 }
 
-void mtfree(mtm_t *mtm, void *ptr) {
+void *mtrealloc(mtm_t *const mtm, void *const ptr, size_t size) {
+	if (size == 0) {
+		mtfree(mtm, ptr);
+		return NULL;
+	}
+	void *out  = NULL;
+	mtm_t _mtm = *mtm;
+	LOCK(_mtm.mut);
+	size_t cur_size;
+	unsigned cur_buf = _mtm.nb_units;
+	for (unsigned i = 0; i < _mtm.nb_units; i++) {
+		if (_mtm.buf[i] == ptr) {
+			cur_size = _mtm.size[i];
+			cur_buf  = i;
+		}
+	}
+
+	if (cur_buf == _mtm.nb_units) {
+		errx(1, "mtrealloc(): invalid pointer");
+	}
+
+	if (size <= cur_size) {
+		out = ptr;
+	} else {
+		if (_mtm.nb_units != _mtm.nb_used) {
+			unsigned good_buf;
+			size_t size_good = SIZE_MAX;
+			for (unsigned i = 0; i < _mtm.nb_units; i++) {
+				if (_mtm.used[i] == 0 && _mtm.size[i] >= size && _mtm.size[i] < size_good) {
+					size_good = _mtm.size[i];
+					good_buf  = i;
+				}
+			}
+			if (size_good != SIZE_MAX) {
+				out = _mtm.buf[good_buf];
+				memcpy(out, ptr, cur_size);
+				_mtm.used[cur_buf]  = 0;
+				_mtm.used[good_buf] = 1;
+			}
+		}
+		if (out == NULL) {
+			out = realloc(ptr, size);
+			if (out == NULL) {
+				err(1, "%s:%d, realloc", __FILE__, __LINE__);
+			}
+			_mtm.size[cur_buf] = size;
+		}
+	}
+	UNLOCK(_mtm.mut);
+	return out;
+}
+
+void *mtcalloc(mtm_t *const mtm, const size_t nmemb, const size_t size) {
+	size_t _size = nmemb * size;
+	if (_size == 0) {
+		return NULL;
+	}
+	void *out = mtmalloc(mtm, _size);
+	memset(out, 0, _size);
+	return out;
+}
+
+void mtfree(mtm_t *const mtm, void *const ptr) {
 	LOCK(mtm->mut);
 	mtm->nb_used--;
 	const mtm_t _mtm = *mtm;
