@@ -1,4 +1,4 @@
-#include "../../src/mtalloc.h"
+#include "mtalloc.h"
 #include <err.h>
 #include <pthread.h>
 #include <stdio.h>
