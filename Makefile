@@ -1,26 +1,23 @@
 SRC_DIR		:= src
 CC			:= gcc
+AR			:= ar
 
 DEPFLAGS	= -MD -MP
 CFLAGS		= -std=gnu11 -g -O3 $(DEPFLAGS) -Wall -Werror
-LDLIBS		= -pthread ../mtalloc.a
+ARFLAGS		= -rsc
 
 SRCS		= $(wildcard $(SRC_DIR)/*.c)
 OBJS		= $(SRCS:$(SRC_DIR)/%.c=%.o)
 VPATH		= $(SRC_DIR)
 
-EXE			= mtalloc_test
+LIB			= mtalloc.a
 
-all: $(EXE)
+all: $(LIB)
 
-$(EXE) : $(OBJS)
-	$(MAKE) -C ..
-	$(LINK.o) $^ $(LOADLIBES) $(LDLIBS) -o $@
-
-run: $(EXE)
-	./$<
+$(LIB): $(OBJS)
+	$(AR) $(ARFLAGS) $@ $<
 
 clean:
-	$(RM) $(EXE) *.o *.d
+	$(RM) $(LIB) *.o *.d
 
-.PHONY: all clean run
+.PHONY: all clean
