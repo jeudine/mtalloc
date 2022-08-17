@@ -3,7 +3,7 @@ CC			:= gcc
 AR			:= ar
 
 DEPFLAGS	= -MD -MP
-CFLAGS		= -std=gnu11 -g -O3 $(DEPFLAGS) -Wall -Werror
+CFLAGS		= -std=gnu11 -g -O3 $(DEPFLAGS) -Wall -Werror -Wextra
 ARFLAGS		= -rsc
 
 SRCS		= $(wildcard $(SRC_DIR)/*.c)
