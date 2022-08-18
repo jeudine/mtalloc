@@ -2,7 +2,7 @@ SRC_DIR		:= src
 CC			:= gcc
 
 DEPFLAGS	= -MD -MP
-CFLAGS		= -std=gnu11 -g -O3 -I../src $(DEPFLAGS) -Wall -Werror
+CFLAGS		= -std=gnu11 -g -O3 -march=native -I../src $(DEPFLAGS) -Wall -Werror -Wextra
 LDLIBS		= -pthread ../mtalloc.a
 
 SRCS		= $(wildcard $(SRC_DIR)/*.c)
