@@ -43,6 +43,7 @@ void mtm_destroy(mtm_t mtm) {
 	}
 	free(mtm.size);
 	free(mtm.used);
+	free(mtm.buf);
 	UNLOCK(mtm.mut);
 	if (pthread_mutex_destroy(&mtm.mut)) {
 		errx(1, "%s:%d, pthread_mutex_destroy", __FILE__, __LINE__);
