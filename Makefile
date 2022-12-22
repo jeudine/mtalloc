@@ -21,3 +21,4 @@ clean:
 	$(RM) $(LIB) *.o *.d
 
 .PHONY: all clean
+-include $(wildcard *.d)

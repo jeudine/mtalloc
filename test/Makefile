@@ -24,3 +24,4 @@ clean:
 	$(RM) $(EXE) *.o *.d
 
 .PHONY: all clean run
+-include $(wildcard *.d)
